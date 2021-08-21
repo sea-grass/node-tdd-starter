@@ -1,10 +1,18 @@
 const express = require('express');
 const App = require('./app');
+const logger = require('./logger');
 
-const server = express();
-const app = new App();
-server.use('/', app.router);
+function start() {
+    return new Promise((resolve) => {
+        const server = express();
+        const app = new App();
+        server.use('/', app.router);
+        
+        server.listen(8080, () => {
+            logger.info("server is now listening on port 8080");
+            resolve(server);
+        });
+    });
+}
 
-server.listen(8080, () => {
-    console.log("server is now listening on port 8080");
-});
+module.exports = { start };
