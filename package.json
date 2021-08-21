@@ -1,0 +1,12 @@
+{
+  "name": "@tdd/example",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "author": "",
+  "workspaces": [
+    "app",
+    "e2e"
+  ],
+  "license": "ISC"
+}

@@ -1,0 +1,1 @@
+This is an example repo showing how to use NPM workspaces, Cypress, and Jest to practice Test-Driven Development (TDD) and achieve a high level of confidence in the correctness of your application.
