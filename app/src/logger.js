@@ -1,5 +1,1 @@
-const log = require('log');
-
-module.exports = {
-    info: log.get('info'),
-};
+module.exports.initLogWriting = () => require('log-node')();

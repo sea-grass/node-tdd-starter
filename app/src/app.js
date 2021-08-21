@@ -13,6 +13,10 @@ class App {
     }
     registerRoutes(expressApp) {
         const router = express.Router();
+        router.get('/', (_, res) => {
+            res.set('Content-Type', 'text/html');
+            res.end('');
+        });
         expressApp.use(this.pathPrefix, router);
     }
 }

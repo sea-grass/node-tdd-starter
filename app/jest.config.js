@@ -10,6 +10,7 @@ const config = {
         "!**/node_modules/**",
         "!src/**/*.test.js",
     ],
+    resetModules: true,
   };
   
 module.exports = config;

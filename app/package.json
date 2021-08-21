@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "watch:start": "nodemon src/index.js",
     "watch:test": "npm run test -- --watch --coverage",
-    "test": "jest"
+    "test": "jest",
+    "start": "node src/index.js"
   },
   "keywords": [],
   "author": "",
@@ -14,9 +16,11 @@
     "@types/jest": "^27.0.1",
     "express": "^4.17.1",
     "log": "^6.0.0",
+    "log-node": "^7.0.0",
     "svelte": "^3.42.2"
   },
   "devDependencies": {
-    "jest": "^27.0.6"
+    "jest": "^27.0.6",
+    "nodemon": "^2.0.12"
   }
 }
