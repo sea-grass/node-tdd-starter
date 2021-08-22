@@ -1,0 +1,19 @@
+{
+  "env": {
+    "commonjs": true,
+    "es2021": true,
+    "node": true
+  },
+  "extends": ["eslint:recommended", "prettier"],
+  "parserOptions": {
+    "ecmaVersion": 12
+  },
+  "rules": {},
+  "overrides": [
+    {
+      "files": ["**/__mocks__/**/*.js", "src/**/*.test.js"],
+      "extends": "plugin:jest/recommended"
+    }
+  ],
+  "plugins": ["jest"]
+}

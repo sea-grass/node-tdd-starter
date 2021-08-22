@@ -5,13 +5,22 @@
   "main": "index.js",
   "scripts": {
     "watch:test": "cypress open",
-    "test": "cypress run"
+    "test": "cypress run",
+    "format": "prettier --write .",
+    "lint": "eslint"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/cypress": "^1.1.3",
-    "cypress": "^8.3.0"
+    "cypress": "^8.3.0",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-cypress": "^2.11.3",
+    "prettier": "^2.3.2"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown ."
   }
 }

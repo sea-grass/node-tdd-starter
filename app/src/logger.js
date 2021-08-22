@@ -1,1 +1,1 @@
-module.exports.initLogWriting = () => require('log-node')();
+module.exports.initLogWriting = () => require("log-node")();

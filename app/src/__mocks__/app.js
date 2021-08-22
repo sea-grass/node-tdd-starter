@@ -1,5 +1,5 @@
 let mockInstance = {
-    registerRoutes: jest.fn()
+  registerRoutes: jest.fn(),
 };
 
 module.exports = jest.fn().mockReturnValue(mockInstance);

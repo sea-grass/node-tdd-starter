@@ -1,3 +1,3 @@
 module.exports = {
-    start: jest.fn().mockResolvedValue(),
+  start: jest.fn().mockResolvedValue(),
 };

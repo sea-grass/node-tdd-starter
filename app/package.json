@@ -7,7 +7,9 @@
     "watch:start": "nodemon src/index.js",
     "watch:test": "npm run test -- --watch --coverage",
     "test": "jest",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "format": "npx prettier --write .",
+    "lint": "eslint"
   },
   "keywords": [],
   "author": "",
@@ -21,7 +23,14 @@
     "qejs": "^3.0.5"
   },
   "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-jest": "^24.4.0",
     "jest": "^27.0.6",
-    "nodemon": "^2.0.12"
+    "nodemon": "^2.0.12",
+    "prettier": "^2.3.2"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown ."
   }
 }
