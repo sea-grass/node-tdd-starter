@@ -2,8 +2,10 @@ jest.mock('./app');
 
 describe('server.js', () => {
     it('starts an express server', () => {
-        const { mockApp } = require('express');
+        const { __setMockApp } = require('express');
         const startServer = require('./server').start;
+
+        const mockApp = __setMockApp();
 
         return startServer().then(() => {
             expect(mockApp.listen).toHaveBeenCalledTimes(1);

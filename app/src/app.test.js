@@ -1,3 +1,5 @@
+const { __createMockApp } = require('express');
+
 describe('App', () => {
     it('can be instantiated', () => {
         const App = require("./app");
@@ -6,71 +8,126 @@ describe('App', () => {
     });
 
     describe('.registerRoutes()', () => {
+        let mockApp;
+        beforeEach(() => {
+            mockApp = __createMockApp();
+        });
         const App = require("./app");
         it('has the instance method', () => {
             const app = new App();
-            
+
             expect(app.registerRoutes).toBeInstanceOf(Function);
         });
 
         it('calls `use` on its first argument', () => {
             const App = require("./app");
+            const { __setMockApp } = require('express');
+            const mockApp = __setMockApp();
             const spy = jest.fn();
 
             const app = new App();
-            app.registerRoutes({ use: spy });
+            app.registerRoutes(mockApp);
 
-            expect(spy).toHaveBeenCalledTimes(1);
+            expect(mockApp.use).toHaveBeenCalledTimes(1);
         });
 
         it.each(['/', '/subpath', '/sub/subpath'])('calls use with the specified pathPrefix (%s)', (pathPrefix) => {
-            const App = require("./app");
-            const spy = jest.fn();
+            const App = require('./app');
+            const { __setMockApp } = require('express');
+            const mockApp = __setMockApp();
 
             const app = new App({ pathPrefix });
-            app.registerRoutes({ use: spy });
+            app.registerRoutes(mockApp);
 
-            const [path] = spy.mock.calls[0];
+            const [path] = mockApp.use.mock.calls[0];
             expect(path).toEqual(pathPrefix);
         });
 
         it('calls use with the express router', () => {
-            const App = require("./app");
-            const { __setMockRouter } = require('express');
+            const App = require('./app');
+            const { __setMockRouter, __setMockApp } = require('express');
             const router = __setMockRouter();
-            const spy = jest.fn();
+            const mockApp = __setMockApp();
 
             const app = new App();
-            app.registerRoutes({ use: spy });
+            app.registerRoutes(mockApp);
 
-            const [,fn] = spy.mock.calls[0];
+            const [, fn] = mockApp.use.mock.calls[0];
             expect(fn).toBe(router);
         });
 
         it('adds `get` routes to the express router', () => {
             const App = require('./app');
-            const { __setMockRouter } = require('express');
-            const router =  __setMockRouter();
-            
+            const { __setMockRouter, __setMockApp } = require('express');
+            const router = __setMockRouter();
+            const mockApp = __setMockApp();
+
             const app = new App();
-            app.registerRoutes({ use: jest.fn() });
+            app.registerRoutes(mockApp);
 
             expect(router.get).toHaveBeenCalled();
         });
 
-        it('its root route sets the `text/html` Content-Type header', () => {
-            const App = require('./app');
-            const { __setMockRouter } = require('express');
-            const router =  __setMockRouter();
-            const resSet = jest.fn();
-            
-            const app = new App();
-            app.registerRoutes({ use: jest.fn() });
-            
-            const [,fn] = router.get.mock.calls.find(([path]) => path === '/');
-            fn(null, { set: resSet, end: jest.fn() });
-            
-            expect(resSet).toHaveBeenCalledWith('Content-Type', 'text/html');
-        });
+        describe('routes', () => {
+            describe('/', () => {
+                it('sets the `text/html` Content-Type header', () => {
+                    const { __setMockRouter, __setMockApp, __createMockRes } = require('express');
+                    const router = __setMockRouter();
+                    const mockApp = __setMockApp();
+                    const App = require('./app');
+                    const mockRes = __createMockRes();
+
+                    const app = new App();
+                    app.registerRoutes(mockApp);
+
+                    const [, fn] = router.get.mock.calls.find(([path]) => path === '/');
+                    fn(null, mockRes);
+
+                    expect(mockRes.set).toHaveBeenCalledWith('Content-Type', 'text/html');
+                });
+                
+                it('returns a 500 if there\'s a render error', () => {
+                    const { __setMockRouter, __setMockApp, __createMockRes } = require('express');
+                    const router = __setMockRouter();
+                    const mockApp = __setMockApp();
+                    const App = require('./app');
+                    const mockRes = __createMockRes();
+
+                    const app = new App();
+                    app.registerRoutes(mockApp);
+
+                    const [, routeFn] = router.get.mock.calls.find(([path]) => path === '/');
+                    routeFn(null, mockRes);
+
+                    console.log(mockRes.render.mock.calls);
+                    const [,, callbackFn] = mockRes.render.mock.calls[0];
+                    callbackFn(new Error(), null);
+
+                    expect(mockRes.status).toHaveBeenCalledWith(500);
+                });
+
+                it('returns a 200', () => {
+                    const { __setMockRouter, __setMockApp, __createMockRes } = require('express');
+                    const router = __setMockRouter();
+                    const mockApp = __setMockApp();
+                    const App = require('./app');
+                    const mockRes = __createMockRes();
+
+                    const app = new App();
+                    app.registerRoutes(mockApp);
+
+                    const [, routeFn] = router.get.mock.calls.find(([path]) => path === '/');
+                    routeFn(null, mockRes);
+
+                    console.log(mockRes.render.mock.calls);
+                    const [,, callbackFn] = mockRes.render.mock.calls[0];
+                    callbackFn(null, 'some html');
+
+                    expect(mockRes.status).toHaveBeenCalledWith(200);
+                });
+            })
+        })
+
+
     });
 })

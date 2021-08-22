@@ -13,7 +13,6 @@ function start() {
         app.registerRoutes(server);
         
         server.listen(8080, () => {
-            console.log("running");
             logger.info("server is now listening on port 8080");
             resolve(server);
         });
