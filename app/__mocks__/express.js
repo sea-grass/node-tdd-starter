@@ -1,5 +1,6 @@
 const express = jest.fn();
 express.Router = jest.fn();
+express.static = jest.fn();
 
 const createMockApp = () => ({
   use: jest.fn(),
@@ -11,6 +12,7 @@ express.mockImplementation(createMockApp);
 
 const createMockRouter = () => ({
   get: jest.fn(),
+  use: jest.fn(),
 });
 express.Router.mockImplementation(createMockRouter);
 

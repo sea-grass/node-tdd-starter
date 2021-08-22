@@ -4,10 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "watch:start": "nodemon src/index.js",
-    "watch:test": "npm run test -- --watch --coverage",
+    "kitty:launch": "kitty @ launch --cwd $(pwd) --env \"PATH='$PATH'\" --keep-focus",
+    "watch:dev": "run-p watch:dev:*",
+    "watch:dev:css": "npm run kitty:launch -- --title CSS -- npx nodemon -w 'src/app/styles/**/*' -e 'css' --exec npm run build:css",
+    "watch:dev:start": "npm run kitty:launch -- --title Server -- npx nodemon --exec npm start",
+    "watch:dev:test": "npm run kitty:launch -- --title Tests -- npm run test -- --watch --coverage",
     "test": "jest",
     "start": "node src/index.js",
+    "build:css": "postcss src/app/styles/tailwind.css -o public/build/styles/style.css",
     "format": "npx prettier --write .",
     "lint": "eslint"
   },
@@ -19,16 +23,21 @@
     "consolidate": "^0.16.0",
     "express": "^4.17.1",
     "html-minifier": "^4.0.0",
+    "htmx": "^0.0.2",
     "log": "^6.0.0",
     "log-node": "^7.0.0",
-    "qejs": "^3.0.5"
+    "qejs": "^3.0.5",
+    "tailwindcss": "^2.2.7"
   },
   "devDependencies": {
+    "autoprefixer": "^10.3.2",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-jest": "^24.4.0",
     "jest": "^27.0.6",
     "nodemon": "^2.0.12",
+    "postcss": "^8.3.6",
+    "postcss-cli": "^8.3.1",
     "prettier": "^2.3.2"
   },
   "lint-staged": {

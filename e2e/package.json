@@ -6,7 +6,7 @@
   "scripts": {
     "app:dev": "cd .. && npm run -w app watch:start",
     "cypress:open": "cypress open",
-    "watch:test": "run-p app:dev cypress:open",
+    "watch:test": "run-s cypress:open",
     "test": "cypress run",
     "format": "prettier --write .",
     "lint": "eslint"

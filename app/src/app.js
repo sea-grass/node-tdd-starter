@@ -53,6 +53,7 @@ class App {
     expressApp.set("view engine", "html");
     expressApp.set("views", path.resolve(__dirname, "app/views"));
     const router = express.Router();
+    router.use("/", express.static(path.resolve(__dirname, "../public")));
     router.get("/", (_, res) => {
       error = new Error();
       res.set("Content-Type", "text/html");
