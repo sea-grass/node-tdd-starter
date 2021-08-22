@@ -166,6 +166,29 @@ describe("App", () => {
           expect(mockRes.status).toHaveBeenCalledWith(200);
         });
       });
+      describe("/clicked", () => {
+        it("sets the `text/html` Content-Type header", () => {
+          const {
+            __setMockRouter,
+            __setMockApp,
+            __createMockRes,
+          } = require("express");
+          const router = __setMockRouter();
+          const mockApp = __setMockApp();
+          const App = require("./app");
+          const mockRes = __createMockRes();
+
+          const app = new App();
+          app.registerRoutes(mockApp);
+
+          const [, fn] = router.get.mock.calls.find(
+            ([path]) => path === "/clicked"
+          );
+          fn(null, mockRes);
+
+          expect(mockRes.set).toHaveBeenCalledWith("Content-Type", "text/html");
+        });
+      });
     });
   });
 });
