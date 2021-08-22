@@ -1,11 +1,31 @@
 const express = require("express");
+const bodyParser = require("body-parser");
 const cons = require("consolidate");
 const path = require("path");
 const { minify } = require("html-minifier");
 const logger = require("log").get("app");
+const sqlite = require("better-sqlite3");
+const session = require("express-session");
+const SqliteStore = require("better-sqlite3-session-store")(session);
+const db = new sqlite(
+  path.resolve(__dirname, "../__app_data__", "sessions.db"),
+  { verbose: logger.get("sqlite").get("sessions").debug }
+);
 
 const defaultOptions = {};
 let error;
+
+const products = [
+  { id: "foo", name: "Foo" },
+  { id: "bar", name: "Bar" },
+  { id: "baz", name: "Baz" },
+];
+
+const getCart = (session) => {
+  let { cart = {} } = session;
+
+  return cart;
+};
 
 const handleRenderResponse = (res) => (renderError, html) => {
   if (renderError) {
@@ -54,16 +74,62 @@ class App {
     expressApp.set("views", path.resolve(__dirname, "app/views"));
     const router = express.Router();
     router.use("/", express.static(path.resolve(__dirname, "../public")));
-    router.get("/", (_, res) => {
+
+    expressApp.use(
+      session({
+        store: new SqliteStore({
+          client: db,
+          expired: {
+            clear: true,
+            intervalMs: 900_000,
+          },
+        }),
+        secret: "so so soooo secret",
+        resave: false,
+      })
+    );
+
+    expressApp.use(bodyParser.urlencoded({ extended: true }));
+
+    router.get("/", (req, res) => {
       error = new Error();
+      const cart = getCart(req.session);
+      const cartItems = Object.keys(cart);
       res.set("Content-Type", "text/html");
-      res.render("index", { title: "App Title" }, handleRenderResponse(res));
+      res.render(
+        "index",
+        { title: "App Title", cart: cartItems },
+        handleRenderResponse(res)
+      );
     });
-    router.get("/clicked", (_, res) => {
+
+    router.get("/products", (_, res) => {
       res.status(200);
       res.set("Content-Type", "text/html");
-      res.render("clicked", {}, handleRenderResponse(res));
+      res.render("products", { products }, handleRenderResponse(res));
     });
+
+    router.post("/cart/add/:productId", (req, res) => {
+      const cart = getCart(req.session);
+      const cartItems = Object.keys(cart);
+
+      const { productId } = req.params;
+      cart[productId] = "true";
+      req.session.cart = cart;
+      logger.info("rendering cart with cart", cart);
+      res.render("cart", { cart: cartItems }, handleRenderResponse(res));
+    });
+
+    router.post("/cart/remove/:productId", (req, res) => {
+      const cart = getCart(req.session);
+      const cartItems = Object.keys(cart);
+
+      const { productId } = req.params;
+      delete cart[productId];
+      req.session.cart = cart;
+      res.render("cart", { cart: cartItems }, handleRenderResponse(res));
+    });
+
     expressApp.use(this.pathPrefix, router);
   }
 }

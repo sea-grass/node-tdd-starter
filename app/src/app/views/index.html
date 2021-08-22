@@ -1,4 +1,8 @@
 <% inherits('layouts/base') %>
 <h1><%= title %></h1>
+<div>
+  <h2>Cart</h2>
+  <%- render('cart', { cart }) %>
+</div>
 <p>Hello, world</p>
-<button hx-get="/clicked" hx-swap="outerHTML">Click me!</button>
+<button hx-get="/products" hx-swap="outerHTML">See products</button>

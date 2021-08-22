@@ -1,0 +1,11 @@
+<div id="cart">
+  <h3>I am the cart</h3>
+  <% for (let i=0; i < cart.length; i++) { %>
+  <div>
+    <p><%= cart[i] %></p>
+    <button hx-post="/cart/remove/<%= cart[i] %>" hx-target="#cart">
+      Remove from cart
+    </button>
+  </div>
+  <% } %>
+</div>

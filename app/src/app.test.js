@@ -13,17 +13,6 @@ describe("App", () => {
       expect(app.registerRoutes).toBeInstanceOf(Function);
     });
 
-    it("calls `use` on its first argument", () => {
-      const App = require("./app");
-      const { __setMockApp } = require("express");
-      const mockApp = __setMockApp();
-
-      const app = new App();
-      app.registerRoutes(mockApp);
-
-      expect(mockApp.use).toHaveBeenCalledTimes(1);
-    });
-
     it.each(["/", "/subpath", "/sub/subpath"])(
       "calls use with the specified pathPrefix (%s)",
       (pathPrefix) => {
@@ -34,8 +23,9 @@ describe("App", () => {
         const app = new App({ pathPrefix });
         app.registerRoutes(mockApp);
 
-        const [path] = mockApp.use.mock.calls[0];
-        expect(path).toEqual(pathPrefix);
+        expect(
+          mockApp.use.mock.calls.find(([arg0]) => arg0 === pathPrefix)
+        ).toBeTruthy();
       }
     );
 
@@ -48,8 +38,9 @@ describe("App", () => {
       const app = new App();
       app.registerRoutes(mockApp);
 
-      const [, fn] = mockApp.use.mock.calls[0];
-      expect(fn).toBe(router);
+      expect(
+        mockApp.use.mock.calls.find(([, arg1]) => arg1 === router)
+      ).toBeTruthy();
     });
 
     it("adds `get` routes to the express router", () => {
@@ -70,31 +61,13 @@ describe("App", () => {
           const {
             __setMockRouter,
             __setMockApp,
+            __createMockReq,
             __createMockRes,
           } = require("express");
           const router = __setMockRouter();
           const mockApp = __setMockApp();
           const App = require("./app");
-          const mockRes = __createMockRes();
-
-          const app = new App();
-          app.registerRoutes(mockApp);
-
-          const [, fn] = router.get.mock.calls.find(([path]) => path === "/");
-          fn(null, mockRes);
-
-          expect(mockRes.set).toHaveBeenCalledWith("Content-Type", "text/html");
-        });
-
-        it("returns a 500 if there's a render error", () => {
-          const {
-            __setMockRouter,
-            __setMockApp,
-            __createMockRes,
-          } = require("express");
-          const router = __setMockRouter();
-          const mockApp = __setMockApp();
-          const App = require("./app");
+          const mockReq = __createMockReq();
           const mockRes = __createMockRes();
 
           const app = new App();
@@ -103,7 +76,31 @@ describe("App", () => {
           const [, routeFn] = router.get.mock.calls.find(
             ([path]) => path === "/"
           );
-          routeFn(null, mockRes);
+          routeFn(mockReq, mockRes);
+
+          expect(mockRes.set).toHaveBeenCalledWith("Content-Type", "text/html");
+        });
+
+        it("returns a 500 if there's a render error", () => {
+          const {
+            __setMockRouter,
+            __setMockApp,
+            __createMockReq,
+            __createMockRes,
+          } = require("express");
+          const router = __setMockRouter();
+          const mockApp = __setMockApp();
+          const App = require("./app");
+          const mockReq = __createMockReq();
+          const mockRes = __createMockRes();
+
+          const app = new App();
+          app.registerRoutes(mockApp);
+
+          const [, routeFn] = router.get.mock.calls.find(
+            ([path]) => path === "/"
+          );
+          routeFn(mockReq, mockRes);
 
           const [, , callbackFn] = mockRes.render.mock.calls[0];
           callbackFn(new Error(), null);
@@ -115,11 +112,13 @@ describe("App", () => {
           const {
             __setMockRouter,
             __setMockApp,
+            __createMockReq,
             __createMockRes,
           } = require("express");
           const router = __setMockRouter();
           const mockApp = __setMockApp();
           const App = require("./app");
+          const mockReq = __createMockReq();
           const mockRes = __createMockRes();
 
           const app = new App();
@@ -128,7 +127,7 @@ describe("App", () => {
           const [, routeFn] = router.get.mock.calls.find(
             ([path]) => path === "/"
           );
-          routeFn(null, mockRes);
+          routeFn(mockReq, mockRes);
 
           const [, , callbackFn] = mockRes.render.mock.calls[0];
           callbackFn(null, "some html");
@@ -140,6 +139,7 @@ describe("App", () => {
           const {
             __setMockRouter,
             __setMockApp,
+            __createMockReq,
             __createMockRes,
           } = require("express");
           const { __setMockMinify } = require("html-minifier");
@@ -150,6 +150,7 @@ describe("App", () => {
           });
           __setMockMinify(minify);
           const App = require("./app");
+          const mockReq = __createMockReq();
           const mockRes = __createMockRes();
 
           const app = new App();
@@ -158,7 +159,7 @@ describe("App", () => {
           const [, routeFn] = router.get.mock.calls.find(
             ([path]) => path === "/"
           );
-          routeFn(null, mockRes);
+          routeFn(mockReq, mockRes);
 
           const [, , callbackFn] = mockRes.render.mock.calls[0];
           callbackFn(null, "some html");
@@ -166,27 +167,120 @@ describe("App", () => {
           expect(mockRes.status).toHaveBeenCalledWith(200);
         });
       });
-      describe("/clicked", () => {
+      describe("/products", () => {
         it("sets the `text/html` Content-Type header", () => {
           const {
             __setMockRouter,
             __setMockApp,
+            __createMockReq,
             __createMockRes,
           } = require("express");
           const router = __setMockRouter();
           const mockApp = __setMockApp();
           const App = require("./app");
+          const mockReq = __createMockReq();
           const mockRes = __createMockRes();
 
           const app = new App();
           app.registerRoutes(mockApp);
 
           const [, fn] = router.get.mock.calls.find(
-            ([path]) => path === "/clicked"
+            ([path]) => path === "/products"
           );
-          fn(null, mockRes);
+          fn(mockReq, mockRes);
 
           expect(mockRes.set).toHaveBeenCalledWith("Content-Type", "text/html");
+        });
+      });
+      describe("/cart/add", () => {
+        it("renders the cart template", () => {
+          const {
+            __setMockRouter,
+            __setMockApp,
+            __createMockReq,
+            __createMockRes,
+          } = require("express");
+          const router = __setMockRouter();
+          const mockApp = __setMockApp();
+          const App = require("./app");
+          const mockReq = __createMockReq({
+            params: {
+              productId: "foo",
+            },
+          });
+          const mockRes = __createMockRes();
+
+          const app = new App();
+          app.registerRoutes(mockApp);
+
+          const [, fn] = router.post.mock.calls.find(([path]) =>
+            path.startsWith("/cart/add")
+          );
+          fn(mockReq, mockRes);
+
+          expect(mockRes.render).toHaveBeenCalledTimes(1);
+          expect(mockRes.render.mock.calls[0][0]).toBe("cart");
+        });
+
+        it("adds the productId to the cart", () => {
+          const productId = "foo";
+          const {
+            __setMockRouter,
+            __setMockApp,
+            __createMockReq,
+            __createMockRes,
+          } = require("express");
+          const router = __setMockRouter();
+          const mockApp = __setMockApp();
+          const App = require("./app");
+          const mockReq = __createMockReq({
+            params: {
+              productId,
+            },
+            session: { cart: undefined },
+          });
+          const mockRes = __createMockRes();
+
+          const app = new App();
+          app.registerRoutes(mockApp);
+
+          const [, fn] = router.post.mock.calls.find(([path]) =>
+            path.startsWith("/cart/add")
+          );
+          fn(mockReq, mockRes);
+
+          expect(mockReq.session.cart).toHaveProperty(productId);
+        });
+      });
+
+      describe("/cart/remove", () => {
+        it("renders the cart template", () => {
+          const {
+            __setMockRouter,
+            __setMockApp,
+            __createMockReq,
+            __createMockRes,
+          } = require("express");
+          const router = __setMockRouter();
+          const mockApp = __setMockApp();
+          const App = require("./app");
+          const mockReq = __createMockReq({
+            params: {
+              productId: "foo",
+            },
+          });
+          const mockRes = __createMockRes();
+
+          const app = new App();
+          app.registerRoutes(mockApp);
+
+          const [, fn] = router.post.mock.calls.find(([path]) =>
+            path.startsWith("/cart/remove")
+          );
+          fn(mockReq, mockRes);
+
+          expect(mockRes.render).toHaveBeenCalledTimes(1);
+          expect(mockRes.render.mock.calls[0][0]).toBe("cart");
         });
       });
     });

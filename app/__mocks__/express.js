@@ -12,9 +12,16 @@ express.mockImplementation(createMockApp);
 
 const createMockRouter = () => ({
   get: jest.fn(),
+  post: jest.fn(),
   use: jest.fn(),
 });
 express.Router.mockImplementation(createMockRouter);
+
+const createMockReq = (impl) => ({
+  session: {},
+  params: {},
+  ...impl,
+});
 
 const createMockRes = () => ({
   status: jest.fn(),
@@ -49,4 +56,5 @@ module.exports.__setMockRouter = (impl) => {
   return impl;
 };
 
+module.exports.__createMockReq = createMockReq;
 module.exports.__createMockRes = createMockRes;

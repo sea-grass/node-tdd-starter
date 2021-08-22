@@ -1,0 +1,8 @@
+<% for (let i = 0; i < products.length; i++) { %>
+<div>
+  <b><%= products[i].name %></b>
+  <button hx-post="/cart/add/<%= products[i].id %>" hx-target="#cart">
+    Add to cart
+  </button>
+</div>
+<% } %>
