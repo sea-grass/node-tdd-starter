@@ -105,7 +105,6 @@ describe("App", () => {
           );
           routeFn(null, mockRes);
 
-          console.log(mockRes.render.mock.calls);
           const [, , callbackFn] = mockRes.render.mock.calls[0];
           callbackFn(new Error(), null);
 
@@ -131,7 +130,36 @@ describe("App", () => {
           );
           routeFn(null, mockRes);
 
-          console.log(mockRes.render.mock.calls);
+          const [, , callbackFn] = mockRes.render.mock.calls[0];
+          callbackFn(null, "some html");
+
+          expect(mockRes.status).toHaveBeenCalledWith(200);
+        });
+
+        it("gracefully handles a minification error", () => {
+          const {
+            __setMockRouter,
+            __setMockApp,
+            __createMockRes,
+          } = require("express");
+          const { __setMockMinify } = require("html-minifier");
+          const router = __setMockRouter();
+          const mockApp = __setMockApp();
+          const minify = jest.fn().mockImplementation(() => {
+            throw new Error("Some minifier error");
+          });
+          __setMockMinify(minify);
+          const App = require("./app");
+          const mockRes = __createMockRes();
+
+          const app = new App();
+          app.registerRoutes(mockApp);
+
+          const [, routeFn] = router.get.mock.calls.find(
+            ([path]) => path === "/"
+          );
+          routeFn(null, mockRes);
+
           const [, , callbackFn] = mockRes.render.mock.calls[0];
           callbackFn(null, "some html");
 

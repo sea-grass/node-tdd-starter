@@ -1,6 +1,7 @@
 const express = require("express");
 const cons = require("consolidate");
 const path = require("path");
+const { minify } = require("html-minifier");
 const logger = require("log").get("app");
 
 const defaultOptions = {};
@@ -32,8 +33,22 @@ class App {
           res.status(500);
           res.end("oop");
         } else {
+          let minifiedHtml;
+          try {
+            minifiedHtml = minify(html, {
+              removeAttributeQuotes: true,
+              removeRedundantAttributes: true,
+              collapseBooleanAttributes: true,
+              collapseWhitespace: true,
+              conservativeCollapse: true,
+            });
+          } catch (minifyError) {
+            error.message = minifyError.message;
+            logger.error(error);
+            minifiedHtml = html;
+          }
           res.status(200);
-          res.send(html);
+          res.send(minifiedHtml);
           res.end();
         }
       });

@@ -18,6 +18,7 @@
     "@types/jest": "^27.0.1",
     "consolidate": "^0.16.0",
     "express": "^4.17.1",
+    "html-minifier": "^4.0.0",
     "log": "^6.0.0",
     "log-node": "^7.0.0",
     "qejs": "^3.0.5"
